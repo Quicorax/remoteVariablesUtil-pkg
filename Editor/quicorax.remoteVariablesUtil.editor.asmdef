@@ -1,0 +1,16 @@
+{
+    "name": "quicorax.remoteVariablesUtil.editor",
+    "rootNamespace": "",
+    "references": ["GUID:b3819b5722d95794b801bd90032a0781"],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

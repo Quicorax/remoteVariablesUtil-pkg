@@ -10,8 +10,6 @@ namespace Services.Runtime.RemoteVariables
 
         private readonly Dictionary<string, string> _remoteVariables = new();
 
-        private bool _isReady;
-        
         public RemoteVariablesService()
         {
             var dependencies = Resources.LoadAsync("RemoteVariables/RemoteData");
@@ -46,8 +44,6 @@ namespace Services.Runtime.RemoteVariables
             {
                 _remoteVariables.Add(remoteVariable.VariableKey, remoteVariable.Value);
             }
-
-            _isReady = true;
         }
     }
 }

@@ -14,13 +14,13 @@ namespace Services.Runtime.RemoteVariables
         
         public RemoteVariablesService()
         {
-            var dependencies = Resources.LoadAsync("RemoteVariables/RemoteData").ToString();
+            var dependencies = Resources.LoadAsync("RemoteVariables/RemoteData");
             dependencies.completed += _ => SetDependencies(dependencies);
         }
         
-        public string GetString(string variableKey) => IsReady(()=> Get(variableKey));
-        public int GetInt(string variableKey) => IsReady(()=> int.Parse(Get(variableKey)));
-        public float GetFloat(string variableKey) => IsReady(()=> float.Parse(Get(variableKey)));
+        public string GetString(string variableKey) => Get(variableKey);
+        public int GetInt(string variableKey) => int.Parse(Get(variableKey));
+        public float GetFloat(string variableKey) => float.Parse(Get(variableKey));
 
         private string Get(string variableKey)
         {
@@ -40,7 +40,7 @@ namespace Services.Runtime.RemoteVariables
                 Debug.LogError("No Remote Variables dependencies defined in the Resources folder!");
             }
             
-            var serializedData = JsonUtility.FromJson<RemoteVariables>(asset?.asset);
+            var serializedData = JsonUtility.FromJson<RemoteVariables>(asset?.asset.ToString());
 
             foreach (var remoteVariable in serializedData.data)
             {
@@ -48,17 +48,6 @@ namespace Services.Runtime.RemoteVariables
             }
 
             _isReady = true;
-        }
-    
-        private void IsReady(Action onReady)
-        {
-            if (_isReady)
-            {
-                onReady.Invoke();
-                return;
-            }
-    
-            Debug.LogWarning("RamoteVariables Service is not ready. Skipped call");
         }
     }
 }

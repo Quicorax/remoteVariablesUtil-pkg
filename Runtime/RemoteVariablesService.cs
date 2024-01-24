@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace Services.Runtime.RemoteVariables
 {
@@ -9,19 +10,17 @@ namespace Services.Runtime.RemoteVariables
 
         private readonly Dictionary<string, string> _remoteVariables = new();
 
+        private bool _isReady;
+        
         public RemoteVariablesService()
         {
-            var serializedData = JsonUtility.FromJson<RemoteVariables>(FetchDependencies());
-
-            foreach (var remoteVariable in serializedData.data)
-            {
-                _remoteVariables.Add(remoteVariable.VariableKey, remoteVariable.Value);
-            }
+            var dependencies = Resources.LoadAsync("RemoteVariables/RemoteData").ToString();
+            dependencies.completed += _ => SetDependencies(dependencies);
         }
         
-        public string GetString(string variableKey) => Get(variableKey);
-        public int GetInt(string variableKey) => int.Parse(Get(variableKey));
-        public float GetFloat(string variableKey) => float.Parse(Get(variableKey));
+        public string GetString(string variableKey) => IsReady(()=> Get(variableKey));
+        public int GetInt(string variableKey) => IsReady(()=> int.Parse(Get(variableKey)));
+        public float GetFloat(string variableKey) => IsReady(()=> float.Parse(Get(variableKey)));
 
         private string Get(string variableKey)
         {
@@ -33,17 +32,33 @@ namespace Services.Runtime.RemoteVariables
 
             return _remoteVariables[variableKey];
         }
-
-        private string FetchDependencies()
+        
+        private void SetDependencies(ResourceRequest asset)
         {
-            var dependencies = Resources.Load("RemoteVariables/RemoteData").ToString();
-
-            if (dependencies == null)
+            if (asset == null)
             {
                 Debug.LogError("No Remote Variables dependencies defined in the Resources folder!");
             }
             
-            return dependencies;
+            var serializedData = JsonUtility.FromJson<RemoteVariables>(asset?.asset);
+
+            foreach (var remoteVariable in serializedData.data)
+            {
+                _remoteVariables.Add(remoteVariable.VariableKey, remoteVariable.Value);
+            }
+
+            _isReady = true;
+        }
+    
+        private void IsReady(Action onReady)
+        {
+            if (_isReady)
+            {
+                onReady.Invoke();
+                return;
+            }
+    
+            Debug.LogWarning("RamoteVariables Service is not ready. Skipped call");
         }
     }
 }

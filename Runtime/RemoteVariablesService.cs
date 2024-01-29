@@ -6,20 +6,17 @@ namespace Services.Runtime.RemoteVariables
 {
     public class RemoteVariablesService : IRemoteVariablesService
     {
-        private const string DataPath = "RemoteVariables/RemoteData";
-
         private readonly Dictionary<string, string> _remoteVariables = new();
-        private bool _isReady;
 
-        public RemoteVariablesService()
+        [Inject]
+        public void Construct(TextAsset dependencies)
         {
-            var dependencies = Resources.LoadAsync(DataPath);
-            dependencies.completed += _ => SetDependencies(dependencies);
+            SetDependencies(dependencies);
         }
         
-        public string GetString(string variableKey) => IsReady(()=> Get(variableKey));
-        public int GetInt(string variableKey) => IsReady(()=> int.Parse(Get(variableKey)));
-        public float GetFloat(string variableKey) => IsReady(()=> float.Parse(Get(variableKey)));
+        public string GetString(string variableKey) => Get(variableKey);
+        public int GetInt(string variableKey) => int.Parse(Get(variableKey));
+        public float GetFloat(string variableKey) => float.Parse(Get(variableKey));
 
         private string Get(string variableKey)
         {
@@ -32,33 +29,19 @@ namespace Services.Runtime.RemoteVariables
             return _remoteVariables[variableKey];
         }
         
-        private void SetDependencies(ResourceRequest asset)
+        private void SetDependencies(TextAsset asset)
         {
             if (asset == null)
             {
                 Debug.LogError("No Remote Variables dependencies defined in the Resources folder!");
             }
             
-            var serializedData = JsonUtility.FromJson<RemoteVariables>(asset?.asset.ToString());
+            var serializedData = JsonUtility.FromJson<RemoteVariables>(asset.ToString());
 
             foreach (var remoteVariable in serializedData.data)
             {
                 _remoteVariables.Add(remoteVariable.VariableKey, remoteVariable.Value);
             }
-            
-            _isReady = true;
-        }
-        
-        private T IsReady<T>(Func<T> onReady)
-        {
-            if (_isReady)
-            {
-                return onReady.Invoke();
-            }
-    
-            Debug.LogWarning("AudioService is not ready. Skipped call");
-    
-            return default;
         }
     }
 }

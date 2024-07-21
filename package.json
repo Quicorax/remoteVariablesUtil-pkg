@@ -1,7 +1,7 @@
 {
   "name": "es.quicorax.remotevariablesutil",
-  "version": "1.0.1",
-  "displayName": "Remote Variables Utility Package",
+  "version": "1.0.2",
+  "displayName": "Quicorax_RemoteVariables",
   "description": "Remote Variables management Utility tools",
   "unity": "2021.3",
   "unityRelease": "0f1",
